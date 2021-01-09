@@ -1,3 +1,4 @@
+import Nweet from "components/Nweet";
 import { dbService } from "fbase";
 import React, { useEffect, useState } from "react";
 
@@ -43,9 +44,11 @@ const Home = ({ userObj }) => {
       </form>
       <div>
         {nweets.map((nweet) => (
-          <div id={nweet.id}>
-            <h4>{nweet.text}</h4>
-          </div>
+          <Nweet
+            key={nweet.id}
+            nweetObj={nweet}
+            isOwner={nweet.creatorId === userObj.uid}
+          /> //Nweet 표시하는 부분 길어질거라 따로 component로 뺌
         ))}
       </div>
     </div>
