@@ -1,11 +1,12 @@
 import Nweet from "components/Nweet";
-import { dbService } from "fbase";
+import { v4 as uuidv4 } from "uuid"; //random key 생성해줌 (npm install uuid 하고 썼음)
+import { dbService, storageService } from "fbase";
 import React, { useEffect, useState } from "react";
 
 const Home = ({ userObj }) => {
   const [nweet, setNweet] = useState("");
   const [nweets, setNweets] = useState([]); //nweets 가져오기 위함
-  const [attachment, setAttachment] = useState();
+  const [attachment, setAttachment] = useState("");
   useEffect(() => {
     dbService.collection("nweets").onSnapshot((snapshot) => {
       //database의 변화를 감지
@@ -18,12 +19,24 @@ const Home = ({ userObj }) => {
   }, []); //mount 될 때만
   const onSubmit = async (event) => {
     event.preventDefault();
-    await dbService.collection("nweets").add({
+    let attachmentUrl = "";
+    if (attachment !== "") {
+      //attachment 있을때만 해줌 (사진 있을 때만)
+      const atttachmentRef = storageService
+        .ref()
+        .child(`${userObj.uid}/${uuidv4()}`); //reference 만들고
+      const response = await atttachmentRef.putString(attachment, "data_url"); //string 형태의 image url 넣기
+      attachmentUrl = await response.ref.getDownloadURL(); //위의 response에서 public하게 사용가능한 url 불러온 것
+    }
+    const nweetObj = {
       text: nweet,
       createdAt: Date.now(),
       creatorId: userObj.uid, //누가 이 nweet을 만들었는가?
-    });
+      attachmentUrl: attachmentUrl,
+    };
+    await dbService.collection("nweets").add(nweetObj);
     setNweet(""); //submit 이후 empty로 바꾸는 과정
+    setAttachment("");
   };
   const onChange = (event) => {
     const {
@@ -46,7 +59,9 @@ const Home = ({ userObj }) => {
     };
     reader.readAsDataURL(theFile); //file을 읽어옴
   };
-  const onClearAttachmentClick = () => setAttachment(null);
+  const onClearAttachmentClick = () => {
+    setAttachment("");
+  };
   return (
     <div>
       <form onSubmit={onSubmit}>
