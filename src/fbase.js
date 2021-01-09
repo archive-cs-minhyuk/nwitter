@@ -12,4 +12,6 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
+export const firebaseInstance = firebase; //Log In 하는 과정에서 필요했음(2.5)
+
 export const authService = firebase.auth();
