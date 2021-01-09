@@ -1,5 +1,6 @@
 import firebase from "firebase/app";
 import "firebase/auth";
+import "firebase/firestore"; //for lecture 3.0~
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -15,3 +16,4 @@ firebase.initializeApp(firebaseConfig);
 export const firebaseInstance = firebase; //Log In 하는 과정에서 필요했음(2.5)
 
 export const authService = firebase.auth();
+export const dbService = firebase.firestore();
