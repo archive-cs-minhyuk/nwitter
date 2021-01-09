@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 const Home = ({ userObj }) => {
   const [nweet, setNweet] = useState("");
   const [nweets, setNweets] = useState([]); //nweets 가져오기 위함
+  const [attachment, setAttachment] = useState();
   useEffect(() => {
     dbService.collection("nweets").onSnapshot((snapshot) => {
       //database의 변화를 감지
@@ -30,6 +31,22 @@ const Home = ({ userObj }) => {
     } = event;
     setNweet(value);
   };
+  const onFileChange = (event) => {
+    const {
+      target: { files },
+    } = event;
+    const theFile = files[0];
+    const reader = new FileReader(); //file name으로 file 읽어오는 API
+    reader.onloadend = (finishedEvent) => {
+      //file을 읽는게 끝나면 실행, finishedEvent에서 result -> 브라우저에 복붙하면 이미지를 보여줌
+      const {
+        currentTarget: { result },
+      } = finishedEvent;
+      setAttachment(result); //state에 result를 갖게 됨. => 이제 사용 가능!
+    };
+    reader.readAsDataURL(theFile); //file을 읽어옴
+  };
+  const onClearAttachmentClick = () => setAttachment(null);
   return (
     <div>
       <form onSubmit={onSubmit}>
@@ -40,7 +57,14 @@ const Home = ({ userObj }) => {
           placeholder="What's on your mind?"
           maxLength={120}
         />
+        <input type="file" accept="image/*" onChange={onFileChange} />
         <input type="submit" value="Nweet" />
+        {attachment && (
+          <div>
+            <img src={attachment} width="50px" height="50px" />
+            <button onClick={onClearAttachmentClick}>Clear</button>
+          </div>
+        )}
       </form>
       <div>
         {nweets.map((nweet) => (
