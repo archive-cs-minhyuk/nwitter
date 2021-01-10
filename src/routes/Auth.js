@@ -1,43 +1,8 @@
+import AuthForm from "components/AuthForm";
 import { authService, firebaseInstance } from "fbase";
-import React, { useState } from "react";
+import React from "react";
 
 const Auth = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [newAccount, setNewAccount] = useState(true);
-  const [error, setError] = useState("");
-  const onChange = (event) => {
-    //email과 password의 onChange 함수 하나로 쓰고, 이 안에서 if 문 사용해 나눔
-    const {
-      target: { name, value },
-    } = event;
-    if (name === "email") {
-      setEmail(value);
-    } else if (name === "password") {
-      setPassword(value);
-    }
-  };
-  const onSubmit = async (event) => {
-    //createUserWithEmailAndPassword가 Promise라서 async 써야함
-    //자세한 내용은 firebase/docs/reference/js의 공식 문서에서 확인 가능
-    event.preventDefault();
-    try {
-      let data;
-      if (newAccount) {
-        //create Account
-        data = await authService.createUserWithEmailAndPassword(
-          email,
-          password
-        ); //async-await 한쌍
-      } else {
-        data = await authService.signInWithEmailAndPassword(email, password);
-      }
-      console.log(data);
-    } catch (error) {
-      setError(error.message);
-    }
-  };
-  const toggleAccount = () => setNewAccount((prev) => !prev);
   const onSocialClick = async (event) => {
     //google과 github로 LogIn하는 법. provider 만들고, signInWithPopup 쓰면 됨.
     const {
@@ -54,32 +19,7 @@ const Auth = () => {
   };
   return (
     <div>
-      <form onSubmit={onSubmit}>
-        <input
-          name="email"
-          type="text"
-          placeholder="Email"
-          required
-          value={email}
-          onChange={onChange}
-        />
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          required
-          value={password}
-          onChange={onChange}
-        />
-        <input
-          type="submit"
-          value={newAccount ? "Create Account" : "Sign In"}
-        />
-        {error}
-      </form>
-      <span onClick={toggleAccount}>
-        {newAccount ? "Sign In" : "Create Account"}
-      </span>
+      <AuthForm />
       <div>
         <button onClick={onSocialClick} name="google">
           Continue with Google
